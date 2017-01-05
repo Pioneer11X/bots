@@ -1,15 +1,4 @@
 local tableItemsToBuy = {
---[[  "item_wraith_band",
-  "item_fairie_fire",
-  "item_tango",
-  "item_boots",
-  "item_blades_of_attack",
-  "item_blades_of_attack",
-  "item_ogre_club",
-  "item_band_of_elvenskin",
-  "item_band_of_elvenskin"
-  ]]--
-  -- "item_tango",
   -- Apparently the fucking game could not figure out how to buy a wraithband. So, we need to specify each component of it.
   "item_faerie_fire",
   "item_branches",
@@ -57,10 +46,16 @@ local knownEvasionSkills = {
 }
 
 local knownEvasionItems = {
-  "butterfly",
-  "solarCrest",
-  "HeavensHalberd"
+  "item_talisman_of_evasion",
+  "item_butterfly",
+  "item_heavens_halberd",
+  "item_solar_crest"
 }
+
+local buyingMKB = false
+local buyingDragonLance = false
+local buyingBKB= false
+local buyingDesolator = false
 
 function addItem( someItemComp )
   for _, v in pairs(someItemComp) do
@@ -78,6 +73,8 @@ function checkForItem( npcBot, item_name )
       if ( currentItem:GetName() == item_name )
       then
         returnItem = currentItem
+      else
+        print( currentItem:GetName() )
       end
     end
   end
@@ -96,6 +93,11 @@ function checkForEvasion(npcBot)
   return hasEvasion
 end
 
+function checkForSkill(npcBot, skill_name)
+  local returnSkill = nil
+  local currentSkill = nil
+end
+
 function ItemPurchaseThink()
 
 	local npcBot = GetBot();
@@ -104,7 +106,6 @@ function ItemPurchaseThink()
 
 -- Get all enemy players --
   local npcBot = GetBot()
-  -- local npcTeam = npcBot:GetTeam()
   local npcTeam = GetTeam()
   local enemyTeam
   
@@ -119,17 +120,22 @@ function ItemPurchaseThink()
   for i = 1, 5, 1 do
     currentEnemy = GetTeamMember( enemyTeam, i )
     -- Check if the current Enemy has Butterfly or any evasion
-    
-    if currentEnemy == nil then
-      return
+    if currentEnemy ~= nil then
+      if ( ( not buyingMKB ) and checkForEvasion(currentEnemy) ) then
+        addItem( mkbComp )
+        buyingMKB = true
+      end
     end
     
-    if checkForEvasion(currentEnemy) then
-      addItem( mkbComp )
+    if currentEnemy ~= nil then
+      -- Check if the enemy hero has evasion abilities.
+--      print(currentEnemy.GetAbilityByName())
     end
-    
-    -- Check if the enemy hero has evasion abilities.
-    print(currentEnemy.GetAbilityByName())
+  end
+  
+  if ( ( DotaTime() >= 15.00 ) and ( not buyingDragonLance ) ) then
+    addItem(dragonLanceComp)
+    buyingDragonLance = true
   end
 
 	if ( #tableItemsToBuy == 0 )
