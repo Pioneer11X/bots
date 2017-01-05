@@ -62,13 +62,13 @@ local knownEvasionItems = {
   "HeavensHalberd"
 }
 
-func addItem(someItemComp)
+function addItem( someItemComp )
   for _, v in pairs(someItemComp) do
     tableItemsToBuy[#tableItemsToBuy + 1] = v
   end
 end  
 
-func checkForItem( npcBot, item_name )
+function checkForItem( npcBot, item_name )
   local returnItem = nil
   local currentItem = nil
   for j = 0, 5, 1 do
@@ -84,8 +84,17 @@ func checkForItem( npcBot, item_name )
   return returnItem
 end
 
-func checkForEvasion(npcBot)
+function checkForEvasion(npcBot)
+  local hasEvasion = false
   for _,v in pairs(knownEvasionItems)
+  do
+    checkItem = checkForItem( npcBot, v )
+    if checkItem ~= nil then
+      hasEvasion = true
+    end
+  end
+  return hasEvasion
+end
 
 function ItemPurchaseThink()
 
@@ -95,7 +104,8 @@ function ItemPurchaseThink()
 
 -- Get all enemy players --
   local npcBot = GetBot()
-  local npcTeam = npcBot.GetTeam()
+  -- local npcTeam = npcBot:GetTeam()
+  local npcTeam = GetTeam()
   local enemyTeam
   
   if ( npcTeam == TEAM_RADIANT ) then
@@ -108,10 +118,15 @@ function ItemPurchaseThink()
   local currentEnemy
   for i = 1, 5, 1 do
     currentEnemy = GetTeamMember( enemyTeam, i )
-    -- Check if the current Enemy has Butterfly.
-    local item
-    for j = 1, 6 , 1 do
-      
+    -- Check if the current Enemy has Butterfly or any evasion
+    
+    if currentEnemy == nil then
+      return
+    end
+    
+    if checkForEvasion(currentEnemy) then
+      addItem( mkbComp )
+    end
     
     -- Check if the enemy hero has evasion abilities.
     print(currentEnemy.GetAbilityByName())
