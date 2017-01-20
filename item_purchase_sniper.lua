@@ -74,7 +74,7 @@ function checkForItem( npcBot, item_name )
       then
         returnItem = currentItem
       else
-        print( currentItem:GetName() )
+        --print( currentItem:GetName() )
       end
     end
   end
